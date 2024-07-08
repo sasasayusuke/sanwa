@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # デバッグポート
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - DEBUG_MODE=1  # 0: normal mode, 1: debug mode

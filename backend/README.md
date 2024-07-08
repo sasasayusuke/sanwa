@@ -1,0 +1,110 @@
+
+## はじめ方
+
+1. 必要なツールのインストール
+   - VSCodeをインストール: [VSCode公式サイト](https://code.visualstudio.com/)
+   - Pythonをインストール: [Python公式サイト](https://www.python.org/)
+   - Docker Desktopをインストール: [Docker公式サイト](https://www.docker.com/products/docker-desktop)
+
+2. 本番実行
+   1. ターミナルを開き、backendに移動します。
+   2. 以下のコマンドを実行してDockerコンテナを起動します：
+      ```
+      docker-compose up -d
+      ```
+   3. アプリケーションが起動したら、ブラウザで `http://localhost:8000` にアクセスしてAPIを使用できます。
+   4. 確認できたら、以下のコマンドでアプリケーションの停止
+     ```
+     docker-compose down
+     ```
+
+3. デバッグ実行
+   1. main.py: read_root関数内にブレイクポイントを設定
+   2. VSCodeの左側のサイドバーからデバッグアイコン（虫のマーク）をクリック
+   3. ドロップダウンメニューから "Docker: Python - FastAPI" を選択
+   4. 緑の再生ボタンをクリックするか、F5キーを押してデバッグを開始
+   5. VSCodeが自動的にDockerコンテナを起動し、デバッガーを接続
+   6. CALL STACK　にサブプロセスが出現
+   7. ブラウザで `http://localhost:8000/` にアクセス
+   8. ブレイクポイント設定箇所でストップし、コードをステップ実行できることを確認
+
+4. APIドキュメントの確認
+   - ブラウザで `http://localhost:8000/docs` にアクセスすると、Swagger UIでAPIの詳細な説明が見られます。
+
+## このプロジェクトのフォルダの構造
+各フォルダのだいたいの役割（仮なので修正していくと思う）
+
+```
+backend/  (これがプロジェクトの一番上の階層です)
+│
+├── .vscode/  (VSCodeエディタの設定ファイルが入っています)
+│   ├── launch.json  (デバッグの設定)
+│   └── tasks.json   (タスクの設定)
+│
+├── api_server/  (ここに主なプログラムが入っています)
+│   │
+│   ├── config/  (設定ファイルを置く場所)
+│   │
+│   ├── models/  (データの形を定義するファイルを置く場所)
+│   │   ├── estimate_model.py  (見積もりデータの形を定義)
+│   │   └── __init__.py
+│   │
+│   ├── repositories/  (データベースとやりとりするプログラムを置く場所)
+│   │   ├── estimate_repository.py  (見積もりデータの保存や取得の処理)
+│   │   └── __init__.py
+│   │
+│   ├── routers/  (APIのエンドポイント（アクセスするためのURL）を定義する場所)
+│   │   ├── estimate_router.py  (見積もり関連のURLを定義)
+│   │   └── __init__.py
+│   │
+│   ├── schemas/  (データの検証ルールを定義する場所)
+│   │   ├── estimate_schema.py  (見積もりデータの検証ルール)
+│   │   └── __init__.py
+│   │
+│   ├── services/  (ビジネスロジック（主な処理）を書く場所)
+│   │   ├── estimate_service.py  (見積もり関連の主な処理)
+│   │   └── __init__.py
+│   │
+│   ├── sql/  (SQLクエリ（データベースへの問い合わせ文）を置く場所)
+│   │
+│   ├── tests/  (テストプログラムを置く場所)
+│   │   ├── test_api.py  (APIのテスト)
+│   │   └── __init__.py
+│   │
+│   ├── utils/  (便利な関数などを置く場所)
+│   │   └── __init__.py
+│   │
+│   ├── database.py  (データベース接続の設定)
+│   ├── main.py      (プログラムの開始点)
+│   └── __init__.py
+│
+├── .dockerignore    (Dockerが無視するファイルリスト)
+├── .env             (環境変数を設定するファイル)
+├── .gitignore       (Gitが無視するファイルリスト、SVNで管理してるのでいまは要らない)
+├── docker-compose.yml  (Dockerの設定ファイル)
+├── Dockerfile          (Dockerイメージを作る指示書)
+├── requirements.txt    (必要なPythonライブラリのリスト)
+├── start.py            (プログラムを開始するスクリプト)
+└── __init__.py
+```
+
+## 各フォルダとファイルの役割
+
+1. `api_server/`: プログラムを主に書いていく場所
+
+   - `config/`: プログラムの設定を管理します。
+   - `models/`: データの形を決めます。現行DBの形をそのまま定義してる
+   - `repositories/`: データベースとやりとりする方法を書きます。データの保存や取得など
+   - `routers/`: APIのURLを決めます。例えば、「/estimates」にアクセスしたらどんな情報を返すかを定義する。
+   - `schemas/`: データのチェックルールを決めます。例えば、「見積もり金額は必ず数字であること」などのルールを書きます。（これはいらないかも）
+   - `services/`: プログラムの主な処理を書きます。
+   - `sql/`: データベースに対する直接の問い合わせ文を置きます。複雑な検索などはここに書きます。
+   - `tests/`: プログラムが正しく動くかをチェックするためのテストを置きます。
+   - `utils/`: よく使う便利な関数を置きます。
+
+2. `.vscode/`: VSCodeからF5押下で動く処理の設定（Dockerでデバッグする設定を置いてる。）
+
+3. その他のファイル：
+   - `Dockerfile`と`docker-compose.yml`は、このプログラムを他のコンピュータでも同じように動かすための設定です。
+   - `requirements.txt`使うPythonライブラリのリストです。
+   - `.env`は、DBのパスワードなど、公開したくない情報を保管する場所です。
