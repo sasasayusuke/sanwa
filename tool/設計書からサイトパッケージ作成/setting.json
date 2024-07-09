@@ -1,0 +1,9 @@
+{
+    "API_KEY": "93ff7c4c971c67a96325c11c3d2ed73cade6029767c14b57f5baed6274eb8ecca2e83a82cdc4c3005b78f7b4baf72f0f70933186aa371f1b7027254de40fc527",
+    "SERVER_ADDRESS": "http://192.168.10.54",
+    "SITE_ID": "5033",
+    "INPUT_DIRECTORY": "C:/Users/NT-210174/Desktop/work/svn/YJY_三和商研受発注システム/trunk/doc/01_基本設計書/01_画面設計/画面設計書",
+    "OUTPUT_DIRECTORY": "C:\\Users\\NT-210174\\Desktop\\サイトパッケージJson",
+    "DATA_OPTION": "post",
+    "ENTRY_OPTION": "create"
+}

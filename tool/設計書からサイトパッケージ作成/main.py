@@ -1,5 +1,4 @@
 import util
-import gui
 import config
 import openpyxl
 import os
@@ -224,7 +223,7 @@ def main(app):
                 site["template_json"]["Sites"].append(site["site_json"])
 
                 # JSONデータを保存
-                file_name = util.save_json(site["template_json"], output_dir, site_name)
+                file_name = util.save_json(site["template_json"], site_name, output_dir)
                 app.log_output(f"{file_name} を作成しました")
             elif app.radio_api_value == config.DATA_OPTIONS["POSTリクエスト"]:
 
@@ -245,5 +244,7 @@ def main(app):
         app.log_output(f"詳細なトレースバック情報:\n{error_info}", "error")
 
 if __name__ == "__main__":
+    import gui
+
     app = gui.Gui("設計書からサイトパッケージ作成",execute_callback=main)
     app.mainloop()

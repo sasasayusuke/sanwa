@@ -136,17 +136,15 @@ def to_alphabet_from_num(num):
 
 def to_N_digits(num, digits):
     return f"{{0:0{digits}d}}".format(num)
-import os
-import json
-import datetime
 
-def save_json(json_data, directory="", file_name="", add_timestamp_dir=False):
-    # ファイル名に現在の日時を追記
-    file_name = f'{file_name}.json'
-
+def save_json(json_data, file_name="", directory="", add_timestamp_dir=False):
     # ディレクトリが指定されていない場合は、現在のディレクトリを使用
     if not directory:
-        directory = os.getcwd()
+        directory = os.path.dirname(os.path.abspath(__file__))
+
+    # ファイル名に .json 拡張子がない場合は追加
+    if not file_name.endswith('.json'):
+        file_name = f'{file_name}.json'
 
     # オプションがTrueの場合、ディレクトリ名に現在の日時を追加
     if add_timestamp_dir:
@@ -160,9 +158,31 @@ def save_json(json_data, directory="", file_name="", add_timestamp_dir=False):
     file_path = os.path.join(directory, file_name)
 
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(json_data, f, ensure_ascii=False, indent=2)
+        json.dump(json_data, f, ensure_ascii=False, indent=4)
 
     return file_path
+
+def read_json(file_name="", directory=""):
+    # ディレクトリが指定されていない場合は、現在のディレクトリを使用
+    if not directory:
+        directory = os.path.dirname(os.path.abspath(__file__))
+
+    # ファイル名に .json 拡張子がない場合は追加
+    if not file_name.endswith('.json'):
+        file_name = f'{file_name}.json'
+
+    # ファイルパスを設定
+    file_path = os.path.join(directory, file_name)
+
+    # ファイルが存在するか確認
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    # JSONファイルを読み込む
+    with open(file_path, 'r', encoding='utf-8') as f:
+        json_data = json.load(f)
+
+    return json_data
 
 def pairwise(iterable):
     """

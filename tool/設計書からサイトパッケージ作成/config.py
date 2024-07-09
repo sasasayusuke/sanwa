@@ -1,10 +1,4 @@
 
-DEFAULT_API_KEY = "93ff7c4c971c67a96325c11c3d2ed73cade6029767c14b57f5baed6274eb8ecca2e83a82cdc4c3005b78f7b4baf72f0f70933186aa371f1b7027254de40fc527"
-DEFAULT_SERVER_ADDRESS = "http://192.168.10.54"
-DEFAULT_SITE_ID = "4560"
-DEFAULT_INPUT_DIRECTORY = r"C:\Users\NT-210174\Box\myspace\docs\temp\画面設計書"
-DEFAULT_OUTPUT_DIRECTORY = r"C:\Users\NT-210174\Desktop\サイトパッケージJson"
-
 MARK_OK = "〇"
 
 DATA_OPTIONS = {
@@ -15,9 +9,6 @@ ENTRY_OPTIONS = {
     "サイト新規作成": "create",
     "サイト更新": "update",
 }
-
-DEFAULT_DATA_OPTION = DATA_OPTIONS["JSON出力"]
-DEFAULT_ENTRY_OPTION = ENTRY_OPTIONS["サイト更新"]
 
 EDIT_ROW_INDEX_TYPE = 8
 EDIT_ROW_INDEX_ITEM = 9
@@ -609,3 +600,10 @@ site_skeleton_json = {
 	"DisableCrossSearch": False,
 	"Comments": [],
 }
+
+
+if __name__ == "__main__":
+    import main,gui
+
+    app = gui.Gui("設計書からサイトパッケージ作成",execute_callback=main.main)
+    app.mainloop()

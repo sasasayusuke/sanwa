@@ -6,8 +6,8 @@ import threading
 import os
 import json
 
-UI_WIDTH = 900
-UI_HEIGHT = 600
+UI_WIDTH = 1000
+UI_HEIGHT = 750
 UI_LONG_INPUT_WIDTH = 80
 UI_SHORT_INPUT_WIDTH = 20
 UI_LOG_WIDTH = 100
@@ -184,22 +184,6 @@ class Gui(tk.Tk):
                 self.log_output(f"Execution error: {e}", "error")
         self.spinner.stop()
 
-    # def initialize_default_values(self):
-    #     # テキスト入力フィールドの初期化
-    #     self.entry_input_dir.insert(0, config.DEFAULT_INPUT_DIRECTORY)
-    #     self.entry_output_dir.insert(0, config.DEFAULT_OUTPUT_DIRECTORY)
-    #     self.entry_api_key.insert(0, config.DEFAULT_API_KEY)
-    #     self.entry_server_address.insert(0, config.DEFAULT_SERVER_ADDRESS)
-    #     self.entry_site_id.insert(0, config.DEFAULT_SITE_ID)
-
-    #     # ラジオボタンの初期化
-    #     self.radio_api.set(config.DEFAULT_DATA_OPTION)
-    #     self.radio_action.set(config.DEFAULT_ENTRY_OPTION)
-
-    #     # UI要素の状態を更新
-    #     self.toggle_entries()
-
-
     def save_setting(self):
         setting_data = {
             "API_KEY": self.entry_api_key.get(),
@@ -212,40 +196,24 @@ class Gui(tk.Tk):
         }
 
         try:
-            with open('setting.json', 'w') as f:
-                json.dump(setting_data, f, indent=4)
+            util.save_json(setting_data, 'setting.json')
             messagebox.showinfo("設定保存", "設定が正常に保存されました。")
         except Exception as e:
             messagebox.showerror("エラー", f"設定の保存中にエラーが発生しました: {str(e)}")
 
     def initialize_default_values(self):
         try:
-            with open('setting.json', 'r') as f:
-                saved_setting = json.load(f)
+            saved_setting = util.read_json('setting.json')
 
             self.entry_api_key.insert(0, saved_setting.get("API_KEY", ""))
             self.entry_server_address.insert(0, saved_setting.get("SERVER_ADDRESS", ""))
             self.entry_site_id.insert(0, saved_setting.get("SITE_ID", ""))
             self.entry_input_dir.insert(0, saved_setting.get("INPUT_DIRECTORY", ""))
             self.entry_output_dir.insert(0, saved_setting.get("OUTPUT_DIRECTORY", ""))
-            self.radio_api.set(saved_setting.get("DATA_OPTION", config.DATA_OPTIONS["POSTリクエスト"]))
-            self.radio_action.set(saved_setting.get("ENTRY_OPTION", config.ENTRY_OPTIONS["サイト新規作成"]))
-        except FileNotFoundError:
-            # 設定ファイルがない場合はデフォルト値を使用
-            self.entry_input_dir.insert(0, config.DEFAULT_INPUT_DIRECTORY)
-            self.entry_output_dir.insert(0, config.DEFAULT_OUTPUT_DIRECTORY)
-            self.entry_api_key.insert(0, config.DEFAULT_API_KEY)
-            self.entry_server_address.insert(0, config.DEFAULT_SERVER_ADDRESS)
-            self.entry_site_id.insert(0, config.DEFAULT_SITE_ID)
-        except json.JSONDecodeError:
-            messagebox.showwarning("警告", "設定ファイルの形式が正しくありません。デフォルト値を使用します。")
-            # デフォルト値を使用
-            self.entry_input_dir.insert(0, config.DEFAULT_INPUT_DIRECTORY)
-            self.entry_output_dir.insert(0, config.DEFAULT_OUTPUT_DIRECTORY)
-            self.entry_api_key.insert(0, config.DEFAULT_API_KEY)
-            self.entry_server_address.insert(0, config.DEFAULT_SERVER_ADDRESS)
-            self.entry_site_id.insert(0, config.DEFAULT_SITE_ID)
-
+            self.radio_api.set(saved_setting.get("DATA_OPTION", ""))
+            self.radio_action.set(saved_setting.get("ENTRY_OPTION", ""))
+        except Exception as e:
+            self.log_output(f"設定ファイルの読み込みに失敗しました: {str(e)}", "error")
         self.toggle_entries()
 
     def load_all_input_values(self):
@@ -274,6 +242,9 @@ class Gui(tk.Tk):
             self.log_box.insert(tk.END, message + "\n")
             print(message)
 
+        # 最下部にスクロール
+        self.log_box.see(tk.END)
+
 if __name__ == "__main__":
     def execute_callback(gui_instance):
         # Accessing values from the GUI instance
@@ -283,3 +254,10 @@ if __name__ == "__main__":
         print("Input Directory:", gui_instance.input_dir_value)
         print("Output Directory:", gui_instance.output_dir_value)
         print("Radio API Value:", gui_instance.radio_api_value)
+
+
+if __name__ == "__main__":
+    import main
+
+    app = Gui("設計書からサイトパッケージ作成",execute_callback=main.main)
+    app.mainloop()
