@@ -2,3 +2,5 @@ fastapi
 uvicorn
 sqlalchemy
 pymssql
+pytest
+pytest-cov
