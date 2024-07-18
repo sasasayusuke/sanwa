@@ -1,5 +1,6 @@
 
 import os
+import re
 import datetime
 import json
 import config
@@ -184,6 +185,19 @@ def read_json(file_name="", directory=""):
 
     return json_data
 
+def process_site_info(input_string, site_info):
+    """
+    入力文字列内のsite_info参照を実際の値に置換する関数
+
+    :param input_string: site_info参照を含む入力文字列
+    :param site_info:    参照される値を含む辞書
+    :return:             site_info参照が置換された出力文字列
+    """
+    pattern = r'site_info\["([^"]+)"\]\["([^"]+)"\]'
+    return re.sub(pattern, lambda m: json.dumps(site_info.get(m.group(1), {}).get(m.group(2), m.group(0))), input_string)
+
+
+
 def pairwise(iterable):
     """
     現在の要素と次の要素を一緒にループする関数
@@ -197,6 +211,7 @@ def pairwise(iterable):
     next(b, None)
     # パターン1: 最後の要素のペアは生成されない
     return zip(a, b)
+
 
 
 if __name__ == "__main__":

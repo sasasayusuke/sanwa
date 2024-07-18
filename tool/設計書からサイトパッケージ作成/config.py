@@ -553,7 +553,7 @@ site_post_json = {
 		# "Sections": [],
 		"LinkColumns": [],
 		"Columns": [],
-		# "Links": [],
+		"Links": [],
 		"Exports": [],
 		"Styles": [],
 		"Scripts": [],

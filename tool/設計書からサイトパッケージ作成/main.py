@@ -9,6 +9,8 @@ import traceback
 import datetime
 import json5
 
+import database
+
 def main(app):
 
     try:
@@ -204,30 +206,36 @@ def main(app):
                 if key not in site:
                     site[key] = value
 
-        # 読込したデータを出力
-        for site_name, site in site_info.items():
-            app.log_output(f"#### {site_name} の 読込したデータを出力を開始")
+        # JSONデータを保存
+        if app.radio_api_value == config.DATA_OPTIONS["JSON出力"]:
+            # 読込したデータを上書き更新
+            for site_name, site in site_info.items():
+                app.log_output(f"#### {site_name} の 読込したJSONデータを保存")
 
-            # 選択肢一覧のLookup対応更新
-            key_name = config.PARAMETERS["選択肢一覧"]["key"]
-            for column in site["site_json"]["SiteSettings"]["Columns"]:
-                if key_name in column:
-                    # 選択肢一覧が存在するもののみ抽出
-                    try:
-                        column[key_name] = json5.loads(column[key_name])
-                    except (json5.JSONDecodeError, ValueError):
-                        app.log_output(f"Invalid JSON: {column[key_name]}", "warning")
-
-
-            if app.radio_api_value == config.DATA_OPTIONS["JSON出力"]:
                 site["template_json"]["Sites"].append(site["site_json"])
 
-                # JSONデータを保存
                 file_name = util.save_json(site["template_json"], site_name, output_dir)
                 app.log_output(f"{file_name} を作成しました")
-            elif app.radio_api_value == config.DATA_OPTIONS["POSTリクエスト"]:
+        # JSONデータを用いてPOSTリクエストを実行
+        elif app.radio_api_value == config.DATA_OPTIONS["POSTリクエスト"]:
+            db_factory = database.DatabaseManagerFactory.get_instance()
+            session = db_factory.get_pleasanter_db()
 
-                # JSONデータを用いてPOSTリクエストを実行
+            # 読込したデータを上書き更新
+            for site_name, site in site_info.items():
+                app.log_output(f"#### {site_name} の 読込したデータへ上書き更新を開始")
+
+                # 選択肢一覧のLookup対応更新
+                key_name = config.PARAMETERS["選択肢一覧"]["key"]
+                for column in site["site_json"]["SiteSettings"]["Columns"]:
+                    if key_name in column:
+                        # 選択肢一覧が存在するもののみ抽出
+                        try:
+                            column[key_name] = util.process_site_info(column[key_name], site_info)
+                            update_flag = True
+                        except (json5.JSONDecodeError, ValueError):
+                            app.log_output(f"Invalid JSON: {column[key_name]}", "warning")
+
                 response = requests.post(site["update_url"], json=site["site_json"])
 
                 app.log_output(f'Status Code: {response.status_code}')
@@ -237,7 +245,14 @@ def main(app):
 
                 app.log_output(f'{server_address}/items/{site_update_id}/index にアクセスしてください')
 
+                # ビューの作成
+                database.create_view(session, site_name, f"SELECT * FROM Results WHERE SiteId = {site_update_id}")
+                app.log_output(f"ビュー '{site_name}' が正常に作成されました。")
+
+
         app.log_output(f'全ての処理が正常終了しました。')
+
+
 
     except Exception:
         error_info = traceback.format_exc()
