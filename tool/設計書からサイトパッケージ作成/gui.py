@@ -5,6 +5,7 @@ import util
 import threading
 import os
 import json
+import logging
 
 UI_WIDTH = 1000
 UI_HEIGHT = 750
@@ -230,16 +231,20 @@ class Gui(tk.Tk):
         self.log_box.tag_configure("warning", foreground="orange")
 
     def log_output(self, message, msg_type="info"):
+        # GUI上のログボックスにも表示
         if msg_type == "error":
             self.log_box.insert(tk.END, message + "\n", "error")
+            logging.error(message)
             util.print_color(message, "red")
         elif msg_type == "warning":
             self.log_box.insert(tk.END, message + "\n", "warning")
+            logging.warning(message)
             util.print_color(message, "yellow")
         elif msg_type == "debug":
-            return
+            logging.debug(message)
         else:
             self.log_box.insert(tk.END, message + "\n")
+            logging.info(message)
             print(message)
 
         # 最下部にスクロール

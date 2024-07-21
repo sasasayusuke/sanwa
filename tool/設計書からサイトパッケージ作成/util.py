@@ -163,6 +163,19 @@ def save_json(json_data, file_name="", directory="", add_timestamp_dir=False):
 
     return file_path
 
+
+def save_js_object(data, file_name="output.js", variable_name="data"):
+    # データをJSON形式の文字列に変換
+    json_string = json.dumps(data, ensure_ascii=False, indent=2)
+
+    # JavaScriptの変数宣言を作成
+    js_variable = f"const {variable_name} = {json_string};"
+
+    # ファイルに保存
+    with open(file_name, "w", encoding="utf-8") as f:
+        f.write(js_variable)
+
+
 def read_json(file_name="", directory=""):
     # ディレクトリが指定されていない場合は、現在のディレクトリを使用
     if not directory:
@@ -195,6 +208,7 @@ def process_site_info(input_string, site_info):
     """
     pattern = r'site_info\["([^"]+)"\]\["([^"]+)"\]'
     return re.sub(pattern, lambda m: json.dumps(site_info.get(m.group(1), {}).get(m.group(2), m.group(0))), input_string)
+
 
 
 

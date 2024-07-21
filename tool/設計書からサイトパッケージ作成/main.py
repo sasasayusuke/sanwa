@@ -8,10 +8,27 @@ import copy
 import traceback
 import datetime
 import json5
-
+import logging
 import database
 
+def setup_logging():
+    log_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log')
+    if not os.path.exists(log_folder):
+        os.makedirs(log_folder)
+
+    log_file = os.path.join(log_folder, f'application_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+        ]
+    )
+
 def main(app):
+    setup_logging()
+    logging.info("Starting application")
 
     try:
         server_address = app.server_value
@@ -20,6 +37,11 @@ def main(app):
         input_dir = app.input_dir_value
         # ファイル名に現在の日時を追記
         output_dir = os.path.join(app.output_dir_value, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
+        logging.info(f"Server Address: {server_address}")
+        logging.info(f"Site ID: {site_id}")
+        logging.info(f"Input Directory: {input_dir}")
+        logging.info(f"Output Directory: {output_dir}")
 
         # ファイル名が '~$' で始まるものを除外し、正しい形式のものだけを処理
         site_info = {}
@@ -256,7 +278,7 @@ def main(app):
 
     except Exception:
         error_info = traceback.format_exc()
-        app.log_output(f"詳細なトレースバック情報:\n{error_info}", "error")
+        logging.error(f"Detailed traceback information:\n{error_info}")
 
 if __name__ == "__main__":
     import gui

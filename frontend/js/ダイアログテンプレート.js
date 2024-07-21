@@ -168,11 +168,11 @@ const createField = (dialogId, type, id, label, options = {}) => {
             break;
         case 'textarea':
             fieldHTML = `
-                <div id="${fullId}Field" class="${widthClass} both">
+                <div id="${fullId}Field" class="field-wide both">
                     <p class="field-label"><label for="${fullId}" class="${requiredClass}">${label}</label></p>
                     <div class="field-control">
                         <div class="container-normal">
-                            <div id="${fullId}.viewer" class="control-markup not-send" ondblclick="editMarkdown('${dialogId}', '${id}');">
+                            <div id="${fullId}_viewer" class="control-markup not-send" ondblclick="editMarkdown('${dialogId}', '${id}');">
                                 <pre>${options.value ? options.value : '<br>'}</pre>
                             </div>
                             <div id="${fullId}.editor" class="ui-icon ui-icon-pencil button-edit-markdown" onclick="editMarkdown('${dialogId}', '${id}');">
@@ -312,11 +312,11 @@ function validateDialog(dialogId) {
     return isValid;
 }
 
-// Markdownエディタを編集可能にする関数
 function editMarkdown(dialogId, id) {
+    
     const fullId = `${dialogId}_${id}`;
     $(`#${fullId}`).show().focus();
-    $(`#${fullId}.viewer`).hide();
+    $(`#${fullId}_viewer`).hide();
 }
 
 // ダイアログを作成し、ページに追加する関数
@@ -337,3 +337,9 @@ function toggleFieldDisabled(fieldId, disabled) {
         field.removeClass('disabled');
     }
 }
+
+$(document).on('blur','textarea',function(){
+    $(this).hide();
+    $(this).prev().prev().text($(this).val());
+    $(this).prev().prev().show();
+})
