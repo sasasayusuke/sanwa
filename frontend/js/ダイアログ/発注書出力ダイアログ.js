@@ -1,7 +1,7 @@
 
 
 // 発注書出力
-createAndAddDialog('PurchaseOrderDialog', '発注書出力', [
+createAndAddDialog('OrderDialog', '発注書出力', [
     { type: 'text', id: 'EstimateNo', label: '見積番号', options: {
         required: true,
         width: 'normal'
@@ -42,4 +42,4 @@ createAndAddDialog('PurchaseOrderDialog', '発注書出力', [
     }},
 ]);
 // ダイアログを開くボタンを追加
-commonAddButton("PurchaseOrderDialogButton", function() {openDialog('PurchaseOrderDialog')}, "発注書出力")
+commonAddButton("OrderDialogButton", function() {openDialog('OrderDialog')}, "発注書出力")

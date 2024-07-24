@@ -79,6 +79,18 @@ styleElement.textContent = `
         color: red;
         margin-left: 3px;
     }
+    .radioButton{
+        padding-top:7px;
+    }
+    .radioButton input[type="radio"]{
+        vertical-align: sub;
+    }
+    .inputText{
+        width:20%;
+    }
+    .disableText{
+        width:80%;
+    }
 `;
 document.head.appendChild(styleElement);
 
@@ -207,7 +219,7 @@ const createField = (dialogId, type, id, label, options = {}) => {
                 <div id="${fullId}Field" class="${widthClass} both">
                     <p class="field-label ${requiredClass}" >${label}</p>
                     <div class="field-control">
-                        <div class="container-normal">
+                        <div class="container-normal radioButton">
                             ${options.options ? options.options.map(opt => `
                                 <input type="radio" id="${fullId}_${opt.value}" name="${fullId}" value="${opt.value}"
                                     ${opt.checked ? 'checked' : ''}
@@ -265,6 +277,49 @@ const createField = (dialogId, type, id, label, options = {}) => {
                 </div>
             `;
             break;
+            case 'range-date':
+                fieldHTML = `
+                    <div id="${fullId}Field" class="${widthClass} both">
+                        <p class="field-label"><label for="${fullId}From" class="${requiredClass}">${label}</label></p>
+                        <div class="field-control">
+                            <div class="container-normal">
+                                <div class="range-text-container">
+                                    <input id="${fullId}From" name="${fullId}From" class="control-textbox datepicker" type="text" data-format="Y/m/d"
+                                        ${options.placeholderFrom ? `placeholder="${options.placeholderFrom}"` : ''}
+                                        ${options.valueFrom ? `value="${options.valueFrom}"` : ''}
+                                        ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
+                                    <span class="range-text-separator">～</span>
+                                    <input id="${fullId}To" name="${fullId}To" class="control-textbox datepicker" type="text" data-format="Y/m/d"
+                                        ${options.placeholderTo ? `placeholder="${options.placeholderTo}"` : ''}
+                                        ${options.valueTo ? `value="${options.valueTo}"` : ''}
+                                        ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="error-message" id="${fullId}-error"></div>
+                    </div>
+                `;
+                break;
+            case 'text-set':
+                fieldHTML = `
+                    <div id="${fullId}Field" class="field-wide both">
+                        <p class="field-label"><label for="${fullId}From" class="${requiredClass}">${label}</label></p>
+                        <div class="field-control">
+                            <div class="container-normal">
+                                <div class="range-text-container">
+                                    <input id="${fullId}From" name="${fullId}From" class="control-textbox inputText" type="text"
+                                        ${options.placeholderFrom ? `placeholder="${options.placeholderFrom}"` : ''}
+                                        ${options.valueFrom ? `value="${options.valueFrom}"` : ''}
+                                        ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
+                                    <input id="${fullId}To" name="${fullId}To" value="${options.disableValue}" class="control-textbox disableText" type="text"
+                                       disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="error-message" id="${fullId}-error"></div>
+                    </div>
+                `;
+                break;
     }
     return fieldHTML;
 };
@@ -342,4 +397,31 @@ $(document).on('blur','textarea',function(){
     $(this).hide();
     $(this).prev().prev().text($(this).val());
     $(this).prev().prev().show();
+})
+
+$(document).on('change',".inputText",function(){
+    //id名から隣要素のid名を取得
+    let id = $(this).attr('id');
+    id = id.slice(0,-4) + "To";
+    //デフォルト値を設定
+    let defaultValue = $(`#${id}`).prop('defaultValue');
+    $(`#${id}`).val(defaultValue);
+    
+    let toValue = $(`#${id}`).val();
+    if(toValue == '' || $(this).val() == ''){
+        return;
+    }
+    // 要素から選択肢を取得
+    let obj = toValue.split(' ').map(e => {
+        let tmp = e.split(':');
+        return {num:tmp[0],val:tmp[1]};
+    })
+    let idx = obj.findIndex(e => e.num == $(this).val());
+    if(idx == -1) {
+        alert('正しい値を入力してください\n数字は半角で入力してください');
+        $(this).val('');
+        $(this).focus();
+        return;
+    }
+    $(`#${id}`).val(obj[idx].val);
 })

@@ -1,6 +1,7 @@
 
-// 発注一覧表作成
-createAndAddDialog('PurchaseListDialog', '発注一覧表作成', [
+
+//施工依頼書出力
+createAndAddDialog('ConstructionRequestDialog', '施工依頼書出力', [
     { type: 'text', id: 'EstimateNo', label: '見積番号', options: {
         required: true,
         width: 'normal'
@@ -21,10 +22,10 @@ createAndAddDialog('PurchaseListDialog', '発注一覧表作成', [
         disabled: true,
         width: 'wide'
     }},
-	{ type: 'range-text', id: 'Supplier', label: '仕入先', options: {
-        width: 'wide'
+    { type: 'datepicker', id: 'ConstructionDay', label: '施工日', options: {
+        width: 'normal',
+        required:true
     }},
 ]);
-// ダイアログを開くボタンを追加
-commonAddButton("PurchaseListDialogButton", function() {openDialog('PurchaseListDialog')}, "発注一覧表作成")
 
+commonAddButton("ConstructionRequestDialogButton", function() {openDialog('ConstructionRequestDialog')}, "施工依頼書出力")

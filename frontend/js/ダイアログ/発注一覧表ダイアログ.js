@@ -1,7 +1,6 @@
 
-
-//施工依頼書出力
-createAndAddDialog('ConstructionFirmwareDialog', '施工依頼書出力', [
+// 発注一覧表作成
+createAndAddDialog('OrderListDialog', '発注一覧表作成', [
     { type: 'text', id: 'EstimateNo', label: '見積番号', options: {
         required: true,
         width: 'normal'
@@ -22,10 +21,10 @@ createAndAddDialog('ConstructionFirmwareDialog', '施工依頼書出力', [
         disabled: true,
         width: 'wide'
     }},
-    { type: 'datepicker', id: 'ConstructionDay', label: '施工日', options: {
-        width: 'normal',
-        required:true
+	{ type: 'range-text', id: 'Supplier', label: '仕入先', options: {
+        width: 'wide'
     }},
 ]);
+// ダイアログを開くボタンを追加
+commonAddButton("OrderListDialogButton", function() {openDialog('OrderListDialog')}, "発注一覧表作成")
 
-commonAddButton("ConstructionFirmwareDialogButton", function() {openDialog('ConstructionFirmwareDialog')}, "施工依頼書出力")
