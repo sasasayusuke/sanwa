@@ -91,12 +91,26 @@ styleElement.textContent = `
     .disableText{
         width:80%;
     }
+    #tmp{
+        width:0px;
+        height:0px;
+        padding:0;
+        border:none;
+    }
+    .SdtTime{
+        position: absolute;
+        top:9px;
+        right:-17px;
+        cursor: pointer;
+        z-index: 10;
+    }
 `;
 document.head.appendChild(styleElement);
 
 // ダイアログのベース構造を定義
 const createDialogHTML = (dialogId, title, content) => `
     <div id="${dialogId}" class="dialog" title="${title}">
+        <button id="tmp"></button>
         ${content}
         <div class="command-center">
             <button class="button button-icon ui-button ui-corner-all ui-widget applied" type="button" onclick="submitDialog('${dialogId}');">
@@ -166,12 +180,12 @@ const createField = (dialogId, type, id, label, options = {}) => {
                     <p class="field-label"><label for="${fullId}" class="${requiredClass}">${label}</label></p>
                     <div class="field-control">
                         <div class="container-normal">
-                            <input id="${fullId}" name="${fullId}" class="control-textbox datepicker" type="text"
+                            <input id="${fullId}" name="${fullId}" class="control-textbox" type=${options.format ? options.format : "date"}
                                 ${options.placeholder ? `placeholder="${options.placeholder}"` : ''}
                                 ${options.value ? `value="${options.value}"` : ''}
-                                autocomplete="off" data-format="Y/m/d"
+                                autocomplete="off" 
                                 ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
-                            <div class="ui-icon ui-icon-clock current-time"></div>
+                            <div class="ui-icon ui-icon-clock SdtTime"></div>
                         </div>
                     </div>
                     <div class="error-message" id="${fullId}-error"></div>
@@ -277,30 +291,30 @@ const createField = (dialogId, type, id, label, options = {}) => {
                 </div>
             `;
             break;
-            case 'range-date':
-                fieldHTML = `
-                    <div id="${fullId}Field" class="${widthClass} both">
-                        <p class="field-label"><label for="${fullId}From" class="${requiredClass}">${label}</label></p>
-                        <div class="field-control">
-                            <div class="container-normal">
-                                <div class="range-text-container">
-                                    <input id="${fullId}From" name="${fullId}From" class="control-textbox datepicker" type="text" data-format="Y/m/d"
-                                        ${options.placeholderFrom ? `placeholder="${options.placeholderFrom}"` : ''}
-                                        ${options.valueFrom ? `value="${options.valueFrom}"` : ''}
-                                        ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
-                                    <span class="range-text-separator">～</span>
-                                    <input id="${fullId}To" name="${fullId}To" class="control-textbox datepicker" type="text" data-format="Y/m/d"
-                                        ${options.placeholderTo ? `placeholder="${options.placeholderTo}"` : ''}
-                                        ${options.valueTo ? `value="${options.valueTo}"` : ''}
-                                        ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
-                                </div>
+        case 'range-date':
+            fieldHTML = `
+                <div id="${fullId}Field" class="${widthClass} both">
+                    <p class="field-label"><label for="${fullId}From" class="${requiredClass}">${label}</label></p>
+                    <div class="field-control">
+                        <div class="container-normal">
+                            <div class="range-text-container">
+                                <input id="${fullId}From" name="${fullId}From" class="control-textbox datepicker" type="text" data-format="Y/m"
+                                    ${options.placeholderFrom ? `placeholder="${options.placeholderFrom}"` : ''}
+                                    ${options.valueFrom ? `value="${options.valueFrom}"` : ''}
+                                    ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
+                                <span class="range-text-separator">～</span>
+                                <input id="${fullId}To" name="${fullId}To" class="control-textbox datepicker" type="text" data-format="Y/m"
+                                    ${options.placeholderTo ? `placeholder="${options.placeholderTo}"` : ''}
+                                    ${options.valueTo ? `value="${options.valueTo}"` : ''}
+                                    ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
                             </div>
                         </div>
-                        <div class="error-message" id="${fullId}-error"></div>
                     </div>
-                `;
-                break;
-            case 'text-set':
+                    <div class="error-message" id="${fullId}-error"></div>
+                </div>
+            `;
+            break;
+        case 'text-set':
                 fieldHTML = `
                     <div id="${fullId}Field" class="field-wide both">
                         <p class="field-label"><label for="${fullId}From" class="${requiredClass}">${label}</label></p>
@@ -311,7 +325,7 @@ const createField = (dialogId, type, id, label, options = {}) => {
                                         ${options.placeholderFrom ? `placeholder="${options.placeholderFrom}"` : ''}
                                         ${options.valueFrom ? `value="${options.valueFrom}"` : ''}
                                         ${disabledAttr} ${requiredAttr} ${additionalAttrs}>
-                                    <input id="${fullId}To" name="${fullId}To" value="${options.disableValue}" class="control-textbox disableText" type="text"
+                                    <input id="${fullId}To" name="${fullId}To" value="${options.disableValue ? options.disableValue:''}" class="control-textbox disableText" type="text"
                                        disabled>
                                 </div>
                             </div>
@@ -331,6 +345,7 @@ function openDialog(dialogId) {
         width: "520px",
         resizable: false
     });
+    $('#tmp').focus();
 }
 
 // ダイアログを閉じる関数
@@ -406,12 +421,12 @@ $(document).on('change',".inputText",function(){
     //デフォルト値を設定
     let defaultValue = $(`#${id}`).prop('defaultValue');
     $(`#${id}`).val(defaultValue);
-    
+    // 入力項目が空の場合 or 隣要素にデフォルト値がない場合は処理終了
     let toValue = $(`#${id}`).val();
     if(toValue == '' || $(this).val() == ''){
         return;
     }
-    // 要素から選択肢を取得
+    // 入力された番号によって隣要素へ値を代入
     let obj = toValue.split(' ').map(e => {
         let tmp = e.split(':');
         return {num:tmp[0],val:tmp[1]};
@@ -424,4 +439,20 @@ $(document).on('change',".inputText",function(){
         return;
     }
     $(`#${id}`).val(obj[idx].val);
+})
+
+
+//時計マークがクリックされたら現在日付を入力
+$(document).on('click','.SdtTime',function(){
+
+    //フォーマットを取得
+    const format = $(this).prev().prop('type');
+    //現在日付を取得
+    let dt = new Date();
+    //typeがmonthの場合は「yyyy-mm」、dateの場合は「yyyy-mm-dd」形式に文字列成型
+    let formatDt = dt.toLocaleDateString('sv-SE');
+    if(format == "month"){
+        formatDt = formatDt.slice(0,7);
+    }
+    $(this).prev().val(formatDt);
 })

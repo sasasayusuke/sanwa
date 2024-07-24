@@ -1,109 +1,53 @@
+
 /**
  * 入力されたラベルに一致する項目の選択した値を返却する。
  * @param {String} label ラベル
- * @param {Number} valueFlg 0: 値 1: 表示
- * @returns {*} 選択された値または表示テキスト
+ * @param {String} flg true: value false: text
  */
-function commonGetValue(label, valueFlg = 0) {
-    const control = $p.getControl($p.getColumnName(label));
-    const tagName = control.prop("tagName");
-
-    let value;
-
+function commonGetVal(label, valueFlg = false) {
+    let value = ""
+    let tagName = $p.getControl($p.getColumnName(label)).prop("tagName")
     try {
-        switch (tagName) {
-            case "SELECT":
-                value = commonHandleSelect(control, valueFlg);
-                break;
-            case "INPUT":
-                value = commonHandleInput(control, label, valueFlg);
-                break;
-            case "TEXTAREA":
-                value = document.getElementById(commonGetId(label) + ".viewer").innerText;
-                break;
-            default:
-                value = commonHandleDefault(control, valueFlg);
+        if (tagName === "SELECT") {
+            if ($p.getControl($p.getColumnName(label)).attr("multiple")) {
+                value = valueFlg ? $p.getControl($p.getColumnName(label)).val() : $p.getControl($p.getColumnName(label)).next().children().last().text()
+            } else {
+                value = valueFlg ? $p.getControl($p.getColumnName(label)).children(':selected').val() : $p.getControl($p.getColumnName(label)).children(':selected').text()
+            }
+        } else if (tagName === "INPUT") {
+            if (commonGetId(label).indexOf("Check") > 0) {
+                value = document.getElementById(commonGetId(label)).checked
+                value = valueFlg ? +value : value
+            } else {
+                // 選択系 読み取り専用
+                value = valueFlg ? $p.getControl($p.getColumnName(label)).attr('data-value') : $p.getControl($p.getColumnName(label))[0].innerHTML
+                if (commonIsNull(value)) {
+                    // 選択系以外
+                    value = $p.getControl($p.getColumnName(label)).val()
+                }
+            }
+        } else if (tagName === "TEXTAREA") {
+            value = document.getElementById(commonGetId(label) + ".viewer").innerText
+        } else {
+            // 選択系 読み取り専用
+            value = valueFlg ? ($p.getControl($p.getColumnName(label)).attr('data-value') ?? $p.getControl($p.getColumnName(label))[0].innerHTML) : $p.getControl($p.getColumnName(label))[0].innerHTML
+            if (commonIsNull(value)) {
+                // 選択系以外
+                value = $p.getControl($p.getColumnName(label)).val()
+            }
         }
     } catch (e) {
-        console.error(`Error processing ${label}:`, e);
-        value = "";
-    }
-    return commonParseIfJson(value);
-}
-
-/**
- * 入力されたラベルのIDを返却する。
- * @param {String} label ラベル
- */
-function commonGetId(label, prefix = true, suffix = false) {
-    try {
-        let id = $p.getColumnName(label)
-        if (commonIsNull(id)) {
-            throw new Error(`共通関数commonGetId：ラベル不正。${label}`)
-        } else {
-            id = prefix ? $p.tableName() + '_' + id : id
-            id = suffix ? id + 'Field' : id
+        console.log(label)
+        console.log(e)
+        value = ""
+    } finally {
+        try {
+            // JSON.parseを試みる
+            return typeof value === 'string' ? JSON.parse(value) : value
+        } catch (error) {
+            // エラーが発生した場合、元の値を返す
+            return value;
         }
-        return id
-    } catch (err) {
-        // 再スロー
-        throw err
-    }
-}
-
-/**
- * SELECT要素の値を処理する。
- * @param {jQuery} control jQuery対象のSELECT要素
- * @param {Number} valueFlg 0: 値 1: 表示
- * @returns {*} 選択された値または表示テキスト
- */
-function commonHandleSelect(control, valueFlg) {
-    if (control.attr("multiple")) {
-        return valueFlg === 0 ? control.val() : control.next().children().last().text();
-    }
-    const selectedOption = control.children(':selected');
-    return valueFlg === 0 ? selectedOption.val() : selectedOption.text();
-}
-
-/**
- * INPUT要素の値を処理する。
- * @param {jQuery} control jQuery対象のINPUT要素
- * @param {String} label ラベル
- * @param {Number} valueFlg 0: 値 1: 表示
- * @returns {*} 入力された値または表示テキスト
- */
-function commonHandleInput(control, label, valueFlg) {
-    const inputId = commonGetId(label);
-    if (inputId.indexOf("Check") > 0) {
-        const checked = document.getElementById(inputId).checked;
-        return valueFlg === 0 ? +checked : checked;
-    }
-    let value = valueFlg === 0 ? control.attr('data-value') : control[0].innerHTML;
-    return commonIsNull(value) ? control.val() : value;
-}
-
-/**
- * デフォルトの要素処理を行う。
- * @param {jQuery} control jQuery対象の要素
- * @param {Number} valueFlg 0: 値 1: 表示
- * @returns {*} 要素の値または表示テキスト
- */
-function commonHandleDefault(control, valueFlg) {
-    let value = valueFlg === 0 ? (control.attr('data-value') ?? control[0].innerHTML) : control[0].innerHTML;
-    return commonIsNull(value) ? control.val() : value;
-}
-
-/**
- * 値がJSON文字列の場合はパースし、そうでない場合は元の値を返す。
- * @param {*} value パース対象の値
- * @returns {*} パースされた値または元の値
- */
-function commonParseIfJson(value) {
-    if (typeof value !== 'string') return value;
-    try {
-        return JSON.parse(value);
-    } catch {
-        return value;
     }
 }
 
@@ -188,7 +132,7 @@ function commonCheckStatus(applys = "all") {
             applys = [applys]
         }
     }
-    return allFlg || applys.map(v => +v).includes(+commonGetValue("Status", true))
+    return allFlg || applys.map(v => +v).includes(+commonGetVal("Status", true))
 }
 
 

@@ -164,7 +164,7 @@ def save_json(json_data, file_name="", directory="", add_timestamp_dir=False):
     return file_path
 
 
-def save_js_object(data, file_name="output.js", variable_name="data"):
+def save_js_object(data, file_name="変数.js", variable_name="data"):
     # データをJSON形式の文字列に変換
     json_string = json.dumps(data, ensure_ascii=False, indent=2)
 

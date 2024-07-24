@@ -17,9 +17,9 @@ EDIT_ROW_INDEX_GRID = 10
 LAYOUT_ROW_INDEX_TYPE = 38
 LAYOUT_ROW_INDEX_GRID = 40
 
-
 # タブの定義
 TABS = {
+
     "一覧要素": {
         "key": 'GridColumns',
     },

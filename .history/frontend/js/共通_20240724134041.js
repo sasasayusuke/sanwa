@@ -4,7 +4,7 @@
  * @param {Number} valueFlg 0: 値 1: 表示
  * @returns {*} 選択された値または表示テキスト
  */
-function commonGetValue(label, valueFlg = 0) {
+function commonGetVal(label, valueFlg = 0) {
     const control = $p.getControl($p.getColumnName(label));
     const tagName = control.prop("tagName");
 
@@ -28,27 +28,8 @@ function commonGetValue(label, valueFlg = 0) {
         console.error(`Error processing ${label}:`, e);
         value = "";
     }
-    return commonParseIfJson(value);
-}
 
-/**
- * 入力されたラベルのIDを返却する。
- * @param {String} label ラベル
- */
-function commonGetId(label, prefix = true, suffix = false) {
-    try {
-        let id = $p.getColumnName(label)
-        if (commonIsNull(id)) {
-            throw new Error(`共通関数commonGetId：ラベル不正。${label}`)
-        } else {
-            id = prefix ? $p.tableName() + '_' + id : id
-            id = suffix ? id + 'Field' : id
-        }
-        return id
-    } catch (err) {
-        // 再スロー
-        throw err
-    }
+    return commonParseIfJson(value);
 }
 
 /**
@@ -188,7 +169,7 @@ function commonCheckStatus(applys = "all") {
             applys = [applys]
         }
     }
-    return allFlg || applys.map(v => +v).includes(+commonGetValue("Status", true))
+    return allFlg || applys.map(v => +v).includes(+commonGetVal("Status", true))
 }
 
 
